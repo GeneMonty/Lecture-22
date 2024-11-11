@@ -127,6 +127,8 @@ export class App extends gfx.GfxApp
         this.waveMaterial.diffuseColor.set(1,1,1);
         this.waveMaterial.specularColor.set(1, 1, 1);
         this.waveMaterial.shininess = 50;
+        this.waveMaterial.waveScale=100;
+        this.waveMaterial.waveAngle=40;
 
         this.models[0].visible = true;
         this.changeRenderStyle();
@@ -138,6 +140,9 @@ export class App extends gfx.GfxApp
     {
         // Update the camera controller
         this.cameraControls.update(deltaTime);
+
+        // updte the wave material
+        this.waveMaterial.waveAngle+=Math.PI*deltaTime; // changing angle by 180degres/seconds
     }
 
 

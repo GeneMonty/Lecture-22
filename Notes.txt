@@ -1,0 +1,5 @@
+# usually we want to reuse the lightning equations for other shaders,as 
+there is no need to start from 0
+
+# vamos a implementar una nueva class para material nuevo
+el material class define la apariencia del objeto y es un contenedor de los shaders

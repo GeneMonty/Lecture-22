@@ -28,6 +28,9 @@ out vec2 uv;
 
 void main() 
 {
+    // si queremos deformar la superficie del conejo tenemos que agregar el waveAngle y waveScale y despues el mismo codigo
+    // que genera el wave con el cosing lo aplicamos en esta area
+    
     // position in homogenous coords is x, y, z, 1
     vertPositionWorld = (modelMatrix * vec4(position, 1)).xyz;
 

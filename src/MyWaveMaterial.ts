@@ -24,6 +24,9 @@ export class MyWaveMaterial extends gfx.Material3
     public diffuseColor: gfx.Color;//reflection coeficients
     public specularColor: gfx.Color;//reflection coeficients
     public shininess: number;
+    
+    public waveAngle: number; // defini nueas propiedades del mataril
+    public waveScale: number;
 
     // call to shader program that calls hadder files
     public static shader = new gfx.ShaderProgram(waveVertexShader, waveFragmentShader);
@@ -58,6 +61,10 @@ export class MyWaveMaterial extends gfx.Material3
     private colorAttribute: number;
     private texCoordAttribute: number;
 
+    // animation data
+    private waveScaleUniform: WebGLUniformLocation | null;
+    private waveAngleUniform: WebGLUniformLocation | null;
+
     constructor()
     {
         super();
@@ -68,6 +75,8 @@ export class MyWaveMaterial extends gfx.Material3
         this.diffuseColor = new gfx.Color(1, 1, 1);
         this.specularColor = new gfx.Color(0, 0, 0);
         this.shininess = 30;
+        this.waveAngle=0;
+        this.waveScale=1;
 
         //init shader (load into gpu)
         MyWaveMaterial.shader.initialize(this.gl);
@@ -97,7 +106,11 @@ export class MyWaveMaterial extends gfx.Material3
         this.positionAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'position');
         this.normalAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'normal');
         this.colorAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'color');
-        this.texCoordAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'texCoord');   
+        this.texCoordAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'texCoord'); 
+        
+        // binding new properties
+        this.waveScaleUniform = MyWaveMaterial.shader.getUniform(this.gl, 'waveScale');   
+        this.waveAngleUniform = MyWaveMaterial.shader.getUniform(this.gl, 'waveAngle');   // get unfiform instead of attribute becaus euniform data
     }
     // este es el draw call que se repite despues de cada actualizacion
     // una vez por objeto
@@ -148,6 +161,13 @@ export class MyWaveMaterial extends gfx.Material3
         this.gl.enableVertexAttribArray(this.normalAttribute);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.normalBuffer);
         this.gl.vertexAttribPointer(this.normalAttribute, 3, this.gl.FLOAT, false, 0, 0);
+
+        // send data we need to send to the shader
+        // set animation uniforms
+        // this.gl.uniform1f(this.waveAngleUniform,0);
+        // this.gl.uniform1f(this.waveScaleUniform,0.2);// passing data succesfuly
+        this.gl.uniform1f(this.waveAngleUniform,this.waveAngle);// asignar las propieades
+        this.gl.uniform1f(this.waveScaleUniform,this.waveScale);// passing data succesfuly
 
         // Set the vertex colors
         if(mesh.hasVertexColors)

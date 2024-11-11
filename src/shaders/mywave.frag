@@ -29,6 +29,12 @@ uniform vec3 kAmbient;
 uniform vec3 kDiffuse;
 uniform vec3 kSpecular;
 uniform float shininess;
+// new uniform variables para animar la luz
+
+// animation data and need to be dfined in mywavematerial.ts
+uniform float waveAngle;
+uniform float waveScale;
+
 
 // texture data
 uniform int useTexture;
@@ -62,9 +68,16 @@ void main()
         else
             l = normalize(lightPositionsWorld[i]); 
 
+        // implementar una especie de onda de luz usando un cosine funciton
+        // float waveFactor=1.0;// un factor para modificar la propiead de la luz
+        // we need to shift the cos function by 0.5 para no clamp los valores
+        float waveFactor=cos(vertPositionWorld.y*waveScale+waveAngle)*0.5+0.5;// un factor para modificar la propiead de la luz
+
+
         // Diffuse component
         float diffuseComponent = max(dot(n, l), 0.0);
-        illumination += diffuseComponent * kDiffuse * diffuseIntensities[i];
+        // illumination += diffuseComponent * kDiffuse * diffuseIntensities[i];
+        illumination += waveFactor*diffuseComponent * kDiffuse * diffuseIntensities[i];
 
         // Compute the vector from the vertex to the eye
         vec3 e = normalize(eyePositionWorld - vertPositionWorld);
@@ -78,7 +91,8 @@ void main()
     }
 
     fragColor = vertColor;
-    fragColor.rgb *= illumination;
+    fragColor.rgb *= illumination;// we are ignoring the alpha compnent
+    // fragColor.a = waveScale; // testing to pass data using the alpha
 
     if(useTexture != 0)
     {
