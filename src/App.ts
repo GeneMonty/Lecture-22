@@ -63,8 +63,7 @@ export class App extends gfx.GfxApp
             'cube.obj', 
             'head.obj',
             'hippo.obj',
-            'sphere.obj',
-            'teapot.obj'
+            'sphere.obj'
         ]);
         modelController.name('');
         modelController.onChange(()=>{this.changeModel()});     
@@ -105,7 +104,6 @@ export class App extends gfx.GfxApp
         this.models.push(gfx.MeshLoader.loadOBJ('./assets/models/head.obj'));
         this.models.push(gfx.MeshLoader.loadOBJ('./assets/models/hippo.obj'));
         this.models.push(gfx.MeshLoader.loadOBJ('./assets/models/sphere.obj'));
-        this.models.push(gfx.MeshLoader.loadOBJ('./assets/models/teapot.obj'));
 
         this.models.forEach((model: gfx.Mesh3) => {
             model.material = this.phongMaterial;
