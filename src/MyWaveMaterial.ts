@@ -9,23 +9,26 @@
 // you are planning to add wizard functionality.
 
 // @ts-ignore
-import phongVertexShader from './shaders/myphong.vert'
+import waveVertexShader from './shaders/mywave.vert'
 // @ts-ignore
-import phongFragmentShader from './shaders/myphong.frag'
+import waveFragmentShader from './shaders/mywave.frag'
 
 import * as gfx from 'gophergfx'
 
 
 export class MyWaveMaterial extends gfx.Material3
 {
+    // puedo cambiar estas propiedad para cambiar las propiedades del material fuera de material class
     public texture: gfx.Texture | null;
-    public ambientColor: gfx.Color;
-    public diffuseColor: gfx.Color;
-    public specularColor: gfx.Color;
+    public ambientColor: gfx.Color;//reflection coeficients
+    public diffuseColor: gfx.Color;//reflection coeficients
+    public specularColor: gfx.Color;//reflection coeficients
     public shininess: number;
 
-    public static shader = new gfx.ShaderProgram(phongVertexShader, phongFragmentShader);
+    // call to shader program that calls hadder files
+    public static shader = new gfx.ShaderProgram(waveVertexShader, waveFragmentShader);
 
+    // todas estas  variables estan definiads en el shader program
     private kAmbientUniform: WebGLUniformLocation | null;
     private kDiffuseUniform: WebGLUniformLocation | null;
     private kSpecularUniform: WebGLUniformLocation | null;
@@ -34,11 +37,13 @@ export class MyWaveMaterial extends gfx.Material3
     private textureUniform: WebGLUniformLocation | null;
     private useTextureUniform: WebGLUniformLocation | null;
 
+    // transformation matrices
     private modelUniform: WebGLUniformLocation | null;
     private normalUniform: WebGLUniformLocation | null;
     private viewUniform: WebGLUniformLocation | null;
     private projectionUniform: WebGLUniformLocation | null;
-
+    
+    // 
     private eyePositionWorldUniform: WebGLUniformLocation | null;
     private numLightsUniform: WebGLUniformLocation | null;
     private lightTypesUniform: WebGLUniformLocation | null;
@@ -46,7 +51,8 @@ export class MyWaveMaterial extends gfx.Material3
     private ambientIntensitiesUniform: WebGLUniformLocation | null;
     private diffuseIntensitiesUniform: WebGLUniformLocation | null;
     private specularIntensitiesUniform: WebGLUniformLocation | null;
-
+    
+    // estas variables cambian por cada vertice y no se definen como uniforme
     private positionAttribute: number;
     private normalAttribute: number;
     private colorAttribute: number;
@@ -55,15 +61,18 @@ export class MyWaveMaterial extends gfx.Material3
     constructor()
     {
         super();
-
+        
+        // initialize default material properties
         this.texture = null;
         this.ambientColor = new gfx.Color(1, 1, 1);
         this.diffuseColor = new gfx.Color(1, 1, 1);
         this.specularColor = new gfx.Color(0, 0, 0);
         this.shininess = 30;
 
+        //init shader (load into gpu)
         MyWaveMaterial.shader.initialize(this.gl);
 
+        // binding las variables uniformes que estan definidas en nuestro shader program
         this.kAmbientUniform = MyWaveMaterial.shader.getUniform(this.gl, 'kAmbient');
         this.kDiffuseUniform = MyWaveMaterial.shader.getUniform(this.gl, 'kDiffuse');
         this.kSpecularUniform = MyWaveMaterial.shader.getUniform(this.gl, 'kSpecular');
@@ -90,15 +99,19 @@ export class MyWaveMaterial extends gfx.Material3
         this.colorAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'color');
         this.texCoordAttribute = MyWaveMaterial.shader.getAttribute(this.gl, 'texCoord');   
     }
-
+    // este es el draw call que se repite despues de cada actualizacion
+    // una vez por objeto
+    // dibbuja la scenena
+    // mesh (buffers y data de la mesh / referencia de la camara y su transfor matrix/ lightmanager todas lasluces que estan en la escena)
     draw(mesh: gfx.Mesh3, camera: gfx.Camera, lightManager: gfx.LightManager): void
     {
-        if(!this.visible || mesh.triangleCount == 0)
+        if(!this.visible || mesh.triangleCount == 0) // revisa si objeto es visible
             return;
 
         this.initialize();
 
         // Switch to this shader
+        // this.gl una llamada al la libreria grafica
         this.gl.useProgram(MyWaveMaterial.shader.getProgram());
 
         // Set the camera and model matrix uniforms
@@ -117,6 +130,7 @@ export class MyWaveMaterial extends gfx.Material3
         this.gl.uniform1f(this.shininessUniform, this.shininess);
 
         // Set the light uniforms
+        // 3f = float 3 , 1i integer1, 3fv flaot3 vector
         this.gl.uniform3f(this.eyePositionWorldUniform, cameraPositionWorld.x, cameraPositionWorld.y, cameraPositionWorld.z);
         this.gl.uniform1i(this.numLightsUniform, lightManager.getNumLights());
         this.gl.uniform1iv(this.lightTypesUniform, lightManager.lightTypes);
@@ -145,7 +159,7 @@ export class MyWaveMaterial extends gfx.Material3
         else
         {
             this.gl.disableVertexAttribArray(this.colorAttribute);
-            this.gl.vertexAttrib4f(this.colorAttribute, 1, 1, 1, 1);
+            this.gl.vertexAttrib4f(this.colorAttribute, 1, 1, 1, 1);// default color
         }
 
         if(this.texture)
